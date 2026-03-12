@@ -1428,3 +1428,34 @@ body.classic-theme .music-btn {
 .bottom-status { display: none !important; }
 .bottom-account { margin-left: 0; }
 .bottom-account-inner { min-width: 180px; }
+
+/* ── Skin panel alongside download manager ── */
+.panel-play-columns {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.panel-play-columns .download-manager-card {
+    flex: 1;
+    min-width: 0;
+}
+
+.skin-panel-column {
+    width: 200px;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    background: #111;
+    border: 1px solid #222;
+    padding: 16px 12px;
+    height: 420px;
+}
+
+.skin-panel-label {
+    font-size: 12px;
+    color: #55ff55;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    text-align: center;
+}

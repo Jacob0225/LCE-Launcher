@@ -46,6 +46,10 @@ document.addEventListener('DOMContentLoaded', () => {
 function initMainMenuSkinViewer() {
     const container = document.getElementById('main-skin-viewer');
     if (!container) return;
+    // If already initialized with real dimensions, skip
+    if (mainMenuRenderer && container.offsetWidth > 0 && container.contains(mainMenuRenderer.domElement)) return;
+    // Clear any previous zero-size canvas
+    while (container.firstChild) container.removeChild(container.firstChild);
 
     mainMenuScene = new THREE.Scene();
     mainMenuCamera = new THREE.PerspectiveCamera(45, container.offsetWidth / container.offsetHeight, 0.1, 1000);

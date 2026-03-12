@@ -155,13 +155,13 @@
                 <div id="btn-profile"></div>
                 <div id="btn-servers"></div>
                 <div id="btn-options"></div>
-                <div id="main-skin-viewer"></div>
             </div>
 
             <!-- Main content panel -->
             <div class="main-panel" id="panel-play">
                 <div class="panel-title">Minecraft Client</div>
 
+                <div class="panel-play-columns">
                 <div class="download-manager-card">
                     <div class="dm-header">
                         <span class="dm-label">DOWNLOAD MANAGER</span>
@@ -194,11 +194,15 @@
                         <div class="dm-btn-folder nav-item" onclick="openGameDir()" tabindex="0">OPEN FOLDER</div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Skin viewer panel (hidden but functional) -->
-            <div id="main-skin-viewer-wrap" style="display:none; position:absolute; pointer-events:none;">
-                <div id="main-skin-viewer-hidden" style="width:1px;height:1px;"></div>
+                <!-- Skin viewer column -->
+                <div class="skin-panel-column">
+                    <div class="skin-panel-label">SKIN PREVIEW</div>
+                    <div id="main-skin-viewer" style="width:100%; flex:1; cursor:grab;"></div>
+                    <div class="dm-btn-folder nav-item" onclick="openSkinManager()" tabindex="0" style="text-align:center; margin-top:10px;">CHANGE SKIN</div>
+                </div>
+
+                </div><!-- end panel-play-columns -->
             </div>
 
             <!-- Progress overlay -->
@@ -586,13 +590,28 @@
             if (nav) nav.classList.add('active');
         }
 
-        // On auth success, update bottom bar
+        // On auth success, update bottom bar + reinit skin viewer
+        // (skin viewer gets 0x0 dimensions when launcher-root is hidden at DOMContentLoaded)
         window.addEventListener('ms-auth-ready', (e) => {
             const p = e.detail;
             const bu = document.getElementById('bottom-username');
             const ba = document.getElementById('bottom-avatar');
             if (bu) bu.textContent = p.username;
             if (ba) ba.textContent = p.username.charAt(0).toUpperCase();
+
+            // Reinitialize the skin viewer now that the container is visible and has real dimensions
+            setTimeout(() => {
+                // Destroy old renderer if it exists with bad dimensions
+                const container = document.getElementById('main-skin-viewer');
+                if (container && (container.offsetWidth === 0 || !container.hasChildNodes())) {
+                    if (typeof initMainMenuSkinViewer === 'function') {
+                        initMainMenuSkinViewer();
+                    }
+                } else if (container && container.hasChildNodes()) {
+                    // Renderer exists but may have wrong size — just fire a resize
+                    window.dispatchEvent(new Event('resize'));
+                }
+            }, 100);
         });
 
         // Override toggleSidebar for new layout
