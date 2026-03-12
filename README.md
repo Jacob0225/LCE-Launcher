@@ -1,17 +1,19 @@
-# LegacyLauncher
+# LCE Launcher
 
 A custom launcher for Minecraft Legacy Console Edition.
 
 <img width="1277" height="717" alt="image" src="https://github.com/user-attachments/assets/eaa9bae6-3b3b-4e39-a3c1-156e34abf3cc" />
-
+(Old Image will change)
 
 ## Features
 
 - **Minecraft-style GUI**: Authentic pixelated interface with Minecraft font and styling
 - **Automatic Updates**: Fetches latest releases from GitHub repositories
 - **Cross-platform Support**: Works on Windows and Linux
-- **Profiles**: Save your username and track playtime
+- **Profiles**: Uses minecraft java username and tracks playtime!
 - **Custom Launch Options**: Configure IP, port, and server mode
+- **Microslop Authentication**: Hopefully will prevent a takedown of the launcher
+- **Fully Compatible with Previous Launcher**: should fully work with Legacy Launcher since I didn't change the file structure
 
 ## Installation
 
