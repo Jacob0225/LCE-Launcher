@@ -10,6 +10,61 @@
 </head>
 <body>
 
+    <!-- ── Microsoft Auth Screen ────────────────────────────────────────────
+         Shown on startup. Hides once login succeeds.
+    ───────────────────────────────────────────────────────────────────────── -->
+    <div id="auth-screen" style="
+        position: fixed; inset: 0; z-index: 9999;
+        background: #1a1a2e;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        font-family: 'Minecraft', monospace;
+        color: #fff;
+    ">
+        <img src="minecraftlogo.png" alt="Minecraft" style="width: 320px; margin-bottom: 32px; image-rendering: pixelated;">
+
+        <div style="
+            background: #2a2a2a;
+            border: 2px solid #555;
+            padding: 32px 40px;
+            text-align: center;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 4px 4px 0 #000;
+        ">
+            <h2 style="font-size: 22px; margin: 0 0 6px; color: #fff; letter-spacing: 1px;">LegacyLauncher</h2>
+            <p style="font-size: 11px; color: #aaa; margin: 0 0 24px;">Sign in with your Microsoft account to continue.</p>
+
+            <p id="auth-status" style="font-size: 11px; min-height: 18px; color: #ff5555; margin: 0 0 16px;"></p>
+
+            <button id="btn-ms-login" onclick="doMicrosoftLogin()" style="
+                background: #2f6fad;
+                border: none; border-bottom: 4px solid #1a4a7a;
+                color: #fff; font-family: inherit;
+                font-size: 14px; padding: 12px 32px;
+                cursor: pointer; width: 100%;
+                letter-spacing: 1px;
+            "
+            onmouseover="this.style.background='#3a80c0'"
+            onmouseout="this.style.background='#2f6fad'">
+                Sign in with Microsoft
+            </button>
+
+            <div id="auth-loading" style="display:none; margin-top: 16px; color: #aaa; font-size: 11px;">
+                Signing in... please wait.
+            </div>
+        </div>
+
+        <div id="auth-user-bar" style="display:none; margin-top: 20px; font-size: 11px; color: #aaa; text-align: center;">
+            Signed in as <span id="auth-username" style="color: #55ff55; font-weight: bold;"></span>
+            &nbsp;·&nbsp;
+            <a href="#" onclick="doLogout(); return false;" style="color: #ff5555; text-decoration: none;">Sign out</a>
+        </div>
+    </div>
+
+    <!-- ── Main Launcher (hidden until auth passes) ──────────────────────── -->
+    <div id="launcher-root" style="display:none;">
+
     <div class="title-bar">
         <div class="title-bar-text">LegacyLauncher</div>
         <div class="window-controls">
@@ -31,72 +86,144 @@
     </div>
 
     <div class="main-wrapper">
-        <div class="sidebar collapsed" id="main-sidebar">
-            <div class="sidebar-title" onclick="toggleSidebar()">
-                <span id="sidebar-title-text">PATCH NOTES</span>
-                <span id="sidebar-toggle-icon" title="Expand Patch Notes">▶</span>
+
+        <!-- ── New Layout: Left Nav Sidebar ── -->
+        <div class="nav-sidebar" id="main-sidebar">
+            <!-- Logo -->
+            <div class="nav-logo-area">
+                <img src="minecraftlogo.png" alt="Minecraft Logo" class="nav-logo-img">
             </div>
-            <div id="updates-list">
-                <div class="update-item">Loading updates...</div>
+
+            <!-- Nav items -->
+            <nav class="nav-menu">
+                <div class="nav-item-row active" id="nav-play" onclick="showMainPanel('play')" tabindex="0">
+                    <span class="nav-icon">▶</span>
+                    <span class="nav-label">Update &amp; Play</span>
+                </div>
+                <div class="nav-item-row" id="nav-instances" onclick="toggleInstances(true)" tabindex="0">
+                    <span class="nav-icon">⊞</span>
+                    <span class="nav-label">Instances</span>
+                </div>
+                <div class="nav-item-row" id="nav-servers" onclick="toggleServers(true)" tabindex="0">
+                    <span class="nav-icon">⊹</span>
+                    <span class="nav-label">Servers</span>
+                </div>
+                <div class="nav-item-row" id="nav-profile" onclick="toggleProfile(true)" tabindex="0">
+                    <span class="nav-icon">◉</span>
+                    <span class="nav-label">Accounts</span>
+                </div>
+                <div class="nav-item-row" id="nav-options" onclick="toggleOptions(true)" tabindex="0">
+                    <span class="nav-icon">⚙</span>
+                    <span class="nav-label">Options</span>
+                </div>
+            </nav>
+
+            <!-- Patch notes toggle at bottom of sidebar -->
+            <div class="nav-sidebar-footer">
+                <div class="nav-item-row" onclick="toggleSidebar()" tabindex="0">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-label" id="sidebar-title-text">Patch Notes</span>
+                    <span id="sidebar-toggle-icon" style="margin-left:auto; font-size:12px;">▶</span>
+                </div>
+                <div id="updates-list" class="nav-updates-list" style="display:none;">
+                    <div class="update-item">Loading updates...</div>
+                </div>
             </div>
         </div>
 
-        <div class="content-area" style="flex-direction: row; align-items: stretch; padding: 0;">
+        <!-- ── Right Content Area ── -->
+        <div class="content-area" style="flex-direction: column; align-items: stretch; justify-content: flex-start; padding: 0; position: relative;">
 
-            <!-- Classic Mode: Logo + Splash (only visible in classic theme) -->
-            <div class="classic-logo-area" id="classic-logo-area">
+            <!-- Classic Mode compat elements (hidden in new layout) -->
+            <div class="classic-logo-area" id="classic-logo-area" style="display:none;">
                 <div style="position: relative;">
                     <img src="minecraftlogo.png" class="mc-logo-img" alt="Minecraft Logo" style="margin-bottom: 0; margin-top: 0;">
                     <div id="classic-splash-text" class="splash-text">Splash!</div>
                 </div>
             </div>
 
-            <!-- Left Side: Main Menu -->
-            <div class="menu-column" style="flex: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 5;">
-                <div class="relative">
-                    <img src="minecraftlogo.png" class="mc-logo-img" alt="Minecraft Logo">
-                    <div id="splash-text" class="splash-text">Splash!</div>
+            <!-- Hidden compat elements renderer.js needs -->
+            <div style="display:none;">
+                <div id="splash-text"></div>
+                <div id="btn-play-main" onclick="launchGame()"></div>
+                <div id="version-select-box">
+                    <span id="current-version-display"></span>
+                    <select id="version-select" onchange="updateSelectedRelease()"></select>
                 </div>
-        
-                <div id="btn-play-main" class="btn-mc btn-play nav-item" onclick="launchGame()" tabindex="0">PLAY</div>
-        
-                <div class="version-row">
-                    <span class="version-label">Version:</span>
-                    <div id="version-select-box" class="version-select-box nav-item" tabindex="0">
-                        <span id="current-version-display">Loading...</span>
-                        <div class="select-arrow">▼</div>
-                        <select id="version-select" class="hidden-select" onchange="updateSelectedRelease()">
-                            <option>Loading...</option>
-                        </select>
+                <div id="btn-check-update" onclick="checkForUpdatesManual()"></div>
+                <div id="btn-instances"></div>
+                <div id="btn-profile"></div>
+                <div id="btn-servers"></div>
+                <div id="btn-options"></div>
+                <div id="main-skin-viewer"></div>
+            </div>
+
+            <!-- Main content panel -->
+            <div class="main-panel" id="panel-play">
+                <div class="panel-title">Minecraft Client</div>
+
+                <div class="download-manager-card">
+                    <div class="dm-header">
+                        <span class="dm-label">DOWNLOAD MANAGER</span>
+                        <div class="dm-branch-pill">
+                            <div id="version-select-box-new" class="dm-branch-select nav-item" tabindex="0">
+                                <span class="dm-branch-text">Branch: </span>
+                                <span id="current-version-display-new">Loading...</span>
+                                <span class="dm-arrow">▼</span>
+                                <select id="version-select-new" class="hidden-select" onchange="syncVersionNew()">
+                                    <option>Loading...</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <div id="btn-check-update" class="btn-mc btn-mini nav-item" onclick="checkForUpdatesManual()" title="Check for Updates" tabindex="0">
-                        <img src="restart.png" alt="Update">
+
+                    <p class="dm-desc">
+                        Download the latest binaries directly from the
+                        <a id="dm-repo-link" href="#" class="dm-link" onclick="openRepoLink(); return false;">GitHub release page</a>.
+                    </p>
+
+                    <div class="dm-status-box">
+                        <div class="dm-status-text" id="dm-status-text">READY TO CHECK FOR UPDATES.</div>
+                        <div class="dm-progress-bar-bg">
+                            <div class="dm-progress-bar-fill" id="progress-bar-fill"></div>
+                        </div>
                     </div>
-                </div>
-        
-                <div class="flex gap-4 w-[500px] max-w-[90%]">
-                    <div class="btn-mc flex-grow nav-item" id="btn-instances" onclick="toggleInstances(true)" tabindex="0" style="font-size: 18px;">INSTANCES</div>
-                    <div class="btn-mc flex-grow nav-item" id="btn-profile" onclick="toggleProfile(true)" tabindex="0" style="font-size: 18px;">PROFILE</div>
-                    <div class="btn-mc flex-grow nav-item" id="btn-servers" onclick="toggleServers(true)" tabindex="0" style="font-size: 18px;">SERVERS</div>
-                    <div class="btn-mc flex-grow nav-item" id="btn-options" onclick="toggleOptions(true)" tabindex="0" style="font-size: 18px;">OPTIONS</div>
+
+                    <div class="dm-buttons">
+                        <div class="dm-btn-check nav-item" onclick="checkForUpdatesManual()" tabindex="0">CHECK FOR UPDATES</div>
+                        <div class="dm-btn-folder nav-item" onclick="openGameDir()" tabindex="0">OPEN FOLDER</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Right Side: Skin Viewer -->
-            <div class="skin-column" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; min-width: 300px; padding-right: 0px;">
-                <div id="main-skin-viewer" style="width: 100%; height: 500px; cursor: grab; display: flex; align-items: center; justify-content: center;"></div>
-                
-                <div class="btn-mc nav-item" onclick="openSkinManager()" style="width: 250px; height: 48px; font-size: 20px; margin-top: -20px; z-index: 10; margin-left: auto; margin-right: auto;" tabindex="0">
-                    CHANGE SKIN
-                </div>
+            <!-- Skin viewer panel (hidden but functional) -->
+            <div id="main-skin-viewer-wrap" style="display:none; position:absolute; pointer-events:none;">
+                <div id="main-skin-viewer-hidden" style="width:1px;height:1px;"></div>
             </div>
-            
+
+            <!-- Progress overlay -->
             <div class="progress-container" id="progress-container">
                 <div class="progress-text" id="progress-text">Downloading...</div>
                 <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" id="progress-bar-fill"></div>
+                    <div class="progress-bar-fill" id="progress-bar-fill-old"></div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- ── New Bottom Bar ── -->
+    <div class="new-bottom-bar">
+        <div class="bottom-account">
+            <div class="bottom-label">ACCOUNT</div>
+            <div class="bottom-account-inner" onclick="toggleProfile(true)">
+                <div class="bottom-avatar" id="bottom-avatar">S</div>
+                <span class="bottom-username" id="bottom-username">Player</span>
+                <span class="bottom-arrow">▼</span>
+            </div>
+        </div>
+
+        <div class="bottom-launch">
+            <div class="btn-launch nav-item" id="btn-launch-main" onclick="launchGame()" tabindex="0">LAUNCH GAME</div>
         </div>
     </div>
 
@@ -345,8 +472,8 @@
         </div>
     </div>
 
-    <!-- Classic Launcher Bottom Bar (only shown when classic theme is active) -->
-    <div id="classic-bottom-bar" class="classic-bottom-bar">
+    <!-- Classic Launcher Bottom Bar (hidden - replaced by new-bottom-bar) -->
+    <div id="classic-bottom-bar" class="classic-bottom-bar" style="display:none!important;">
         <!-- Left: Profile Section -->
         <div class="classic-profile-section">
             <div class="classic-avatar" id="classic-avatar">S</div>
@@ -392,8 +519,186 @@
         <span id="music-icon">♪</span>
     </div>
 
+    </div><!-- end #launcher-root -->
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="skin_manager.js"></script>
     <script src="renderer.js"></script>
+
+    <!-- ── New Layout Glue ─────────────────────────────────────────────────── -->
+    <script>
+        // ── Version selector: mirror #version-select into the visible branch pill ──
+        function syncVersionNew() {
+            const newSel = document.getElementById('version-select-new');
+            const oldSel = document.getElementById('version-select');
+            if (!newSel || !oldSel) return;
+            oldSel.value = newSel.value;
+            if (typeof updateSelectedRelease === 'function') updateSelectedRelease();
+        }
+
+        // Poll the hidden select and keep the visible one in sync
+        function syncNewVersionDisplay() {
+            const oldSel = document.getElementById('version-select');
+            const newSel = document.getElementById('version-select-new');
+            const newDisp = document.getElementById('current-version-display-new');
+            if (!oldSel || !newSel) return;
+
+            // Copy options across if they've been populated
+            if (oldSel.options.length > 0 && (newSel.options.length !== oldSel.options.length || newSel.options[0].text !== oldSel.options[0].text)) {
+                newSel.innerHTML = oldSel.innerHTML;
+                newSel.value = oldSel.value;
+            }
+            // Keep display text in sync
+            if (newDisp && oldSel.options.length > 0) {
+                const selected = oldSel.options[oldSel.selectedIndex];
+                if (selected) newDisp.textContent = selected.text;
+            }
+        }
+        setInterval(syncNewVersionDisplay, 400);
+
+        // ── Account display: locked to MS Java username, never editable ──
+        function lockAccountToMsUser() {
+            if (!window.msProfile) return;
+            const name = window.msProfile.username;
+            const bu = document.getElementById('bottom-username');
+            const ba = document.getElementById('bottom-avatar');
+            if (bu) bu.textContent = name;
+            if (ba) ba.textContent = name.charAt(0).toUpperCase();
+            // Also keep the hidden username-input in sync so renderer uses it for launch args
+            const ui = document.getElementById('username-input');
+            if (ui) ui.value = name;
+        }
+        setInterval(lockAccountToMsUser, 1000);
+
+        // Wire repo link
+        function openRepoLink() {
+            const repoInput = document.getElementById('repo-input');
+            const repo = repoInput ? repoInput.value : 'smartcmd/MinecraftConsoles';
+            if (typeof shell !== 'undefined') {
+                shell.openExternal('https://github.com/' + repo + '/releases');
+            }
+        }
+
+        // Panel show (for future multi-panel support)
+        function showMainPanel(name) {
+            document.querySelectorAll('.nav-item-row').forEach(r => r.classList.remove('active'));
+            const nav = document.getElementById('nav-' + name);
+            if (nav) nav.classList.add('active');
+        }
+
+        // On auth success, update bottom bar
+        window.addEventListener('ms-auth-ready', (e) => {
+            const p = e.detail;
+            const bu = document.getElementById('bottom-username');
+            const ba = document.getElementById('bottom-avatar');
+            if (bu) bu.textContent = p.username;
+            if (ba) ba.textContent = p.username.charAt(0).toUpperCase();
+        });
+
+        // Override toggleSidebar for new layout
+        window._origToggleSidebar = window.toggleSidebar;
+        function toggleSidebar() {
+            const list = document.getElementById('updates-list');
+            const icon = document.getElementById('sidebar-toggle-icon');
+            if (!list) return;
+            const expanded = list.style.display !== 'none';
+            list.style.display = expanded ? 'none' : 'block';
+            if (icon) icon.textContent = expanded ? '▶' : '▼';
+        }
+    </script>
+
+    <!-- ── Microsoft Auth Logic ───────────────────────────────────────────── -->
+    <script>
+        // ipcRenderer is already declared in renderer.js — reuse it directly
+
+        const authScreen   = document.getElementById('auth-screen');
+        const launcherRoot = document.getElementById('launcher-root');
+        const authStatus   = document.getElementById('auth-status');
+        const authLoading  = document.getElementById('auth-loading');
+        const authUserBar  = document.getElementById('auth-user-bar');
+        const authUsername = document.getElementById('auth-username');
+        const btnLogin     = document.getElementById('btn-ms-login');
+
+        async function initAuth() {
+            setAuthStatus('Checking saved session...');
+            const profile = await ipcRenderer.invoke('ms-restore-session');
+            if (profile) {
+                onLoginSuccess(profile);
+            } else {
+                setAuthStatus('');
+            }
+        }
+
+        async function doMicrosoftLogin() {
+            try {
+                btnLogin.disabled = true;
+                authLoading.style.display = 'block';
+                setAuthStatus('');
+
+                const result = await ipcRenderer.invoke('ms-login');
+
+                authLoading.style.display = 'none';
+                btnLogin.disabled = false;
+
+                if (result && result.success) {
+                    onLoginSuccess(result);
+                } else {
+                    const errMsg = (result && result.error) ? result.error : 'Unknown error';
+                    console.error('[ms-login] Failed:', errMsg);
+                    setAuthStatus('Login failed: ' + errMsg);
+                }
+            } catch (err) {
+                authLoading.style.display = 'none';
+                btnLogin.disabled = false;
+                console.error('[ms-login] Exception:', err);
+                setAuthStatus('Error: ' + err.message);
+            }
+        }
+
+        function onLoginSuccess(profile) {
+            window.msProfile = profile;
+
+            authUsername.textContent = profile.username;
+            authUserBar.style.display = 'block';
+            setAuthStatus('');
+
+            authScreen.style.display = 'none';
+            launcherRoot.style.display = '';
+
+            // Pre-fill username if empty
+            const usernameInput = document.getElementById('username-input');
+            if (usernameInput && !usernameInput.value) {
+                usernameInput.value = profile.username;
+            }
+
+            // Update classic bottom bar
+            const classicDisplay = document.getElementById('classic-username-display');
+            if (classicDisplay && classicDisplay.textContent === 'Player') {
+                classicDisplay.textContent = profile.username;
+            }
+            const classicAvatar = document.getElementById('classic-avatar');
+            if (classicAvatar) {
+                classicAvatar.textContent = profile.username.charAt(0).toUpperCase();
+            }
+
+            window.dispatchEvent(new CustomEvent('ms-auth-ready', { detail: profile }));
+        }
+
+        async function doLogout() {
+            await ipcRenderer.invoke('ms-logout');
+            window.msProfile = null;
+            launcherRoot.style.display = 'none';
+            authScreen.style.display = 'flex';
+            authUserBar.style.display = 'none';
+            btnLogin.disabled = false;
+            setAuthStatus('Signed out.');
+        }
+
+        function setAuthStatus(msg) {
+            authStatus.textContent = msg;
+        }
+
+        initAuth();
+    </script>
 </body>
 </html>

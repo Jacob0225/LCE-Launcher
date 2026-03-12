@@ -32,20 +32,35 @@
     -webkit-font-smoothing: none;
 }
 
+html {
+    height: 100%;
+    overflow: hidden;
+    background: #0d0d0d;
+}
+
 body {
     margin: 0;
     padding: 0;
     height: 100vh;
+    max-height: 100vh;
     width: 100vw;
     display: flex;
     flex-direction: column;
-    background-color: var(--mc-gui-bg);
+    background-color: #0d0d0d;
     font-family: 'Minecraft', monospace;
     overflow: hidden;
     image-rendering: pixelated;
     -webkit-user-select: none;
     user-select: none;
     border: 2px solid #000;
+}
+
+#launcher-root {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
 }
 
 .title-bar {
@@ -96,7 +111,8 @@ body {
 
 .main-wrapper {
     display: flex;
-    flex-grow: 1;
+    flex: 1;
+    min-height: 0;
     overflow: hidden;
     position: relative;
     width: 100%;
@@ -1026,3 +1042,389 @@ body.classic-theme .sidebar-title {
 body.classic-theme .music-btn {
     bottom: 92px;
 }
+
+
+/* ============================================================
+   NEW MAIN LAYOUT — sidebar nav + content panel + bottom bar
+   ============================================================ */
+
+/* ── Nav Sidebar ── */
+.nav-sidebar {
+    width: 230px;
+    min-width: 230px;
+    background: #0d0d0d;
+    border-right: 1px solid #1a1a1a;
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    overflow: hidden;
+}
+
+.nav-logo-area {
+    padding: 18px 16px 10px;
+    border-bottom: 1px solid #1a1a1a;
+}
+
+.nav-logo-img {
+    width: 100%;
+    max-width: 180px;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.8));
+    display: block;
+}
+
+.nav-menu {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0;
+    flex: 1;
+}
+
+.nav-item-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 20px;
+    cursor: pointer;
+    color: #888;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+    transition: background 0.15s, color 0.15s;
+    position: relative;
+    border-left: 3px solid transparent;
+}
+
+.nav-item-row:hover {
+    background: rgba(255,255,255,0.05);
+    color: #ccc;
+}
+
+.nav-item-row.active {
+    background: rgba(255,255,255,0.07);
+    color: #fff;
+    border-left-color: #55ff55;
+}
+
+.nav-item-row.active .nav-icon {
+    color: #55ff55;
+}
+
+.nav-icon {
+    font-size: 16px;
+    width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.nav-label {
+    flex: 1;
+}
+
+.nav-sidebar-footer {
+    border-top: 1px solid #1a1a1a;
+    padding: 4px 0;
+}
+
+.nav-updates-list {
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 8px 12px;
+}
+
+.nav-updates-list .update-item {
+    font-size: 12px;
+    color: #666;
+    padding: 4px 0;
+}
+
+/* ── Content Area / Main Panel ── */
+.main-panel {
+    flex: 1;
+    padding: 32px 40px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.panel-title {
+    font-size: 36px;
+    color: #e8e8e8;
+    margin-bottom: 28px;
+    font-family: 'Minecraft', monospace;
+    text-shadow: 2px 2px 0 #000;
+    letter-spacing: 1px;
+}
+
+/* ── Download Manager Card ── */
+.download-manager-card {
+    background: #111;
+    border: 1px solid #222;
+    padding: 24px 28px;
+    max-width: 680px;
+}
+
+.dm-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.dm-label {
+    color: #55ff55;
+    font-size: 14px;
+    letter-spacing: 2px;
+}
+
+.dm-branch-pill {
+    position: relative;
+}
+
+.dm-branch-select {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    color: #aaa;
+    font-size: 13px;
+    padding: 4px 28px 4px 10px;
+    cursor: pointer;
+    font-family: 'Minecraft', monospace;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    position: relative;
+    min-width: 140px;
+}
+
+.dm-branch-select:hover {
+    border-color: #555;
+    color: #fff;
+}
+
+.dm-branch-text {
+    color: #555;
+}
+
+.dm-arrow {
+    position: absolute;
+    right: 8px;
+    font-size: 10px;
+    color: #555;
+}
+
+.dm-desc {
+    color: #888;
+    font-size: 14px;
+    margin: 0 0 20px;
+    font-family: 'Segoe UI', sans-serif;
+    line-height: 1.5;
+}
+
+.dm-link {
+    color: #55ff55;
+    text-decoration: none;
+}
+
+.dm-link:hover {
+    text-decoration: underline;
+}
+
+.dm-status-box {
+    background: #0a0a0a;
+    border: 1px solid #1e1e1e;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+}
+
+.dm-status-text {
+    color: #666;
+    font-size: 13px;
+    margin-bottom: 10px;
+    font-family: 'Minecraft', monospace;
+    letter-spacing: 0.5px;
+}
+
+.dm-progress-bar-bg {
+    height: 6px;
+    background: #1a1a1a;
+    width: 100%;
+    border-radius: 0;
+}
+
+.dm-progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: #55ff55;
+    box-shadow: 0 0 8px rgba(85,255,85,0.4);
+    transition: width 0.2s ease-out;
+}
+
+.dm-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.dm-btn-check {
+    flex: 1;
+    background: #22c55e;
+    border: none;
+    color: #000;
+    font-size: 15px;
+    padding: 14px 0;
+    text-align: center;
+    cursor: pointer;
+    font-family: 'Minecraft', monospace;
+    letter-spacing: 1px;
+    transition: background 0.15s, filter 0.15s;
+}
+
+.dm-btn-check:hover {
+    background: #4ade80;
+    filter: brightness(1.1);
+}
+
+.dm-btn-folder {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    color: #ccc;
+    font-size: 15px;
+    padding: 14px 24px;
+    text-align: center;
+    cursor: pointer;
+    font-family: 'Minecraft', monospace;
+    letter-spacing: 1px;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.dm-btn-folder:hover {
+    background: #222;
+    border-color: #555;
+    color: #fff;
+}
+
+/* ── New Bottom Bar ── */
+.new-bottom-bar {
+    height: 72px;
+    min-height: 72px;
+    background: #0a0a0a;
+    border-top: 1px solid #1a1a1a;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 24px;
+    z-index: 200;
+    flex-shrink: 0;
+}
+
+.bottom-label {
+    font-size: 11px;
+    color: #444;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+}
+
+.bottom-status {
+    min-width: 100px;
+}
+
+.bottom-status-value {
+    font-size: 16px;
+    color: #55ff55;
+    text-shadow: 0 0 8px rgba(85,255,85,0.4);
+}
+
+.bottom-account {
+    flex: 1;
+    max-width: 220px;
+}
+
+.bottom-account-inner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #141414;
+    border: 1px solid #252525;
+    padding: 6px 12px 6px 8px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+}
+
+.bottom-account-inner:hover {
+    border-color: #444;
+}
+
+.bottom-avatar {
+    width: 32px;
+    height: 32px;
+    background: #4CAF50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #fff;
+    font-family: 'Minecraft', monospace;
+    image-rendering: pixelated;
+    flex-shrink: 0;
+}
+
+.bottom-username {
+    color: #ddd;
+    font-size: 16px;
+    flex: 1;
+}
+
+.bottom-arrow {
+    color: #444;
+    font-size: 12px;
+}
+
+.bottom-launch {
+    margin-left: auto;
+}
+
+.btn-launch {
+    background: #22c55e;
+    border: none;
+    color: #000;
+    font-size: 20px;
+    padding: 14px 48px;
+    cursor: pointer;
+    font-family: 'Minecraft', monospace;
+    letter-spacing: 2px;
+    transition: background 0.15s, filter 0.15s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-launch:hover {
+    background: #4ade80;
+    filter: brightness(1.1);
+}
+
+.btn-launch:active {
+    transform: scale(0.97);
+}
+
+.btn-launch.disabled, .btn-launch.running {
+    background: #1a4a2a;
+    color: #55ff55;
+    cursor: default;
+    filter: none;
+}
+
+/* ── Keep content-area background ── */
+.content-area {
+    background-image: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.92)), url('minecraft.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+/* ── Music btn adjust for new bottom bar ── */
+.music-btn {
+    bottom: 82px !important;
+}
+
+/* Remove status, account starts from left */
+.bottom-status { display: none !important; }
+.bottom-account { margin-left: 0; }
+.bottom-account-inner { min-width: 180px; }

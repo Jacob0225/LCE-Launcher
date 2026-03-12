@@ -1,4 +1,5 @@
 const { app, BrowserWindow, shell, ipcMain, dialog } = require('electron');
+const msauth = require('./msauth');
 const path = require('path');
 const Store = require('electron-store');
 const fs = require('fs');
@@ -54,7 +55,33 @@ function createWindow() {
     });
     return result.filePaths[0];
   });
- 
+
+  // ── Microsoft auth ───────────────────────────────────────────────────────
+  ipcMain.handle('ms-restore-session', async () => {
+    try {
+      return await msauth.tryRestoreSession();
+    } catch (err) {
+      console.error('[ms-restore-session]', err.message);
+      return null;
+    }
+  });
+
+  ipcMain.handle('ms-login', async () => {
+    try {
+      const profile = await msauth.login();
+      return { success: true, ...profile };
+    } catch (err) {
+      console.error('[ms-login]', err.message);
+      return { success: false, error: err.message };
+    }
+  });
+
+  ipcMain.handle('ms-logout', () => {
+    msauth.logout();
+    return { success: true };
+  });
+  // ────────────────────────────────────────────────────────────────────────
+
   win.on('maximize', () => win.webContents.send('window-is-maximized', true));
   win.on('unmaximize', () => win.webContents.send('window-is-maximized', false));
 
