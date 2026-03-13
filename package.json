@@ -1,6 +1,6 @@
 {
-  "name": "legacylauncher",
-  "version": "3.0.1",
+  "name": "lce-launcher",
+  "version": "1.1.0",
   "description": "",
   "main": "main.js",
   "scripts": {
@@ -12,8 +12,8 @@
     "dist:mac": "electron-builder --mac dmg"
   },
   "build": {
-    "appId": "com.legacylauncher.app",
-    "productName": "LegacyLauncher",
+    "appId": "com.LCE-launcher.app",
+    "productName": "LCE-Launcher",
     "win": {
       "target": [
         "nsis"

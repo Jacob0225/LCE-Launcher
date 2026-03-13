@@ -8,7 +8,7 @@ const childProcess = require('child_process');
 const DEFAULT_REPO = "smartcmd/MinecraftConsoles";
 const DEFAULT_EXEC = "Minecraft.Client.exe";
 const TARGET_FILE = "LCEWindows64.zip";
-const LAUNCHER_REPO = "gradenGnostic/LegacyLauncher";
+const LAUNCHER_REPO = "Jacob0225/LCE-Launcher";
 
 let instances = [];
 let currentInstanceId = null;
@@ -1829,16 +1829,16 @@ function ensureDesktopShortcut() {
     const path = require('path');
     const home = os.homedir();
     const desktopDir = path.join(home, '.local', 'share', 'applications');
-    const desktopPath = path.join(desktopDir, 'LegacyLauncher.desktop');
+    const desktopPath = path.join(desktopDir, 'LCE-Launcher.desktop');
     if (fs.existsSync(desktopPath)) return;
     const appPath = process.env.APPIMAGE || process.argv[0];
     if (!appPath) return;
     const content = `[Desktop Entry]
 Type=Application
-Name=LegacyLauncher
-Comment=LegacyLauncher AppImage
+Name=LCE-Launcher
+Comment=LCE-Launcher AppImage
 Exec="${appPath}" %U
-Icon=LegacyLauncher
+Icon=LCE-Launcher
 Terminal=false
 Categories=Game;Emulation;`;
     fs.mkdirSync(desktopDir, { recursive: true });
